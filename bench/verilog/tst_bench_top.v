@@ -313,31 +313,11 @@ initial
       cop_count_test;
       
       cop_count_test_8;
-
-      $finish;
-
-      u0.wb_write(1, SLAVE_0_CNTRL,   COP_CNTRL_DEBUG_ENA); // Enable Slave Mode
-
-      // Set Master Mode PS=0, Modulo=16
-      test_num = test_num + 1;
-      $display("TEST #%d Starts at vector=%d, ms_test", test_num, vector);
-
-      u0.wb_write(1, COP_TOUT,   16'h0010); // load prescaler hi-byte
-      u0.wb_write(1, COP_CNTRL, COP_CNTRL_COP_ENA); // Enable to start counting
-      $display("status: %t programmed registers", $time);
-
-      wait_flag_set;  // Wait for Counter to tomeout
-      u0.wb_write(1, COP_CNTRL, COP_CNTRL_STOP_ENA | COP_CNTRL_COP_ENA); //
-
-      wait_flag_set;  // Wait for Counter to tomeout
-      u0.wb_write(1, COP_CNTRL, COP_CNTRL_STOP_ENA | COP_CNTRL_COP_ENA); //
-
-      repeat(10) @(posedge mstr_test_clk);
-      u0.wb_write(1, COP_CNTRL, 16'b0); //
+      
+      cop_irq_test;
 
       repeat(10) @(posedge mstr_test_clk);
 
-      repeat(100) @(posedge mstr_test_clk);
       $display("\nTestbench done at vector=%d\n", vector);
       $finish;
   end
@@ -346,7 +326,7 @@ initial
 task wait_flag_set;
   begin
     u0.wb_read(1, COP_CNTRL, q);
-    while(~|(q & COP_CNTRL_STOP_ENA))
+    while(~|(q & COP_CNTRL_COP_EVENT))
       u0.wb_read(1, COP_CNTRL, q); // poll it until it is set
     $display("COP Flag set detected at vector =%d", vector);
   end
@@ -511,6 +491,27 @@ task cop_count_test;
       u0.wb_write(0, COP_COUNT, COP_COUNT_SVRW1);
       u0.wb_cmp(  1, COP_CNTRL, COP_CNTRL_COP_ENA); // verify Status bit cleared
 
+   end
+endtask
+
+task cop_irq_test;
+  begin
+      test_num = test_num + 1;
+      $display("TEST #%d Starts at vector=%d, cop_irq_test",
+                test_num, vector);
+      // program internal registers
+      u0.wb_write(1, COP_CNTRL, 16'h0000); // Turn off COP_ENA
+      u0.wb_write(1, COP_TOUT,  16'h0014); // Write TOUT reg
+//      u0.wb_write(1, COP_CNTRL, COP_CNTRL_IRQ | COP_CNTRL_COP_ENA); //
+      u0.wb_write(1, COP_CNTRL, 16'h0040 | COP_CNTRL_COP_ENA); //
+      send_x_osc_clks(10);
+
+      u0.wb_write(1, COP_CNTRL, 16'h0000); // Turn off COP_ENA
+      u0.wb_write(1, COP_TOUT,  16'h0022); // Write TOUT reg
+      send_x_osc_clks(1);
+//      u0.wb_write(1, COP_CNTRL, COP_CNTRL_IRQ | COP_CNTRL_COP_ENA); //
+      u0.wb_write(1, COP_CNTRL, 16'h0080 | COP_CNTRL_COP_ENA); //
+      send_x_osc_clks(10);
    end
 endtask
 
