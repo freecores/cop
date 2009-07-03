@@ -142,8 +142,7 @@ module cop_top #(parameter ARST_LVL = 1'b0,      // asynchronous reset level
     .sync_reset     ( sync_reset ),
     .bus_clk        ( wb_clk_i ),
     .write_bus      ( wb_dat_i ),
-    .write_regs     ( write_regs ),
-    .cnt_flag_o     ( cnt_flag_o )
+    .write_regs     ( write_regs )
   );
 
 // -----------------------------------------------------------------------------

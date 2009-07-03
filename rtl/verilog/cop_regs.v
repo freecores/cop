@@ -58,8 +58,7 @@ module cop_regs #(parameter ARST_LVL = 1'b0,      // asynchronous reset level
   input                       sync_reset,   // Syncronous reset signal
   input                       cop_flag,     // COP Rollover Flag
   input          [DWIDTH-1:0] write_bus,    // Write Data Bus
-  input                [ 4:0] write_regs,   // Write Register strobes
-  input                       cnt_flag_o    // Counter Rollover Flag 
+  input                [ 4:0] write_regs    // Write Register strobes
   );
 
 
