@@ -147,16 +147,16 @@ module tst_bench_top();
   always #20 mstr_test_clk = ~mstr_test_clk;
 
   always @(posedge mstr_test_clk)
-    vector = vector + 1;
+    vector <= vector + 1;
 
   always @(mstr_test_clk)
     begin
       if (osc_div <= 7)
-        osc_div = osc_div + 1;
+        osc_div <= osc_div + 1;
       else
-	osc_div = 0;
+	osc_div <= 0;
       if (osc_div == 7)
-	startup_osc = !startup_osc;
+	startup_osc <= !startup_osc;
     end
     
   assign osc_clk = startup_osc && en_osc_clk;
